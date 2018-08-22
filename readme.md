@@ -1,14 +1,14 @@
 ## Demo #1 - Deploying a Standalone MEAN Application
-To start we're going to deploy a MEAN stack application into a single Lightsail instance. This means that both the Express front end and the Mongo database will be running on the same host. We'll build a new application instance, configure the Mongo database, and then test out our application 
+To start we`re going to deploy a MEAN stack application into a single Lightsail instance. This means that both the Express front end and the Mongo database will be running on the same host. We`ll build a new application instance, configure the Mongo database, and then test out our application 
 
 ### 1.1: Build the MEAN application instance
-The first thing we need to do is create a MEAN stack instance in Lightsail. When we create our instance, we'll use a Lightsail launch script to install our application.
+The first thing we need to do is create a MEAN stack instance in Lightsail. When we create our instance, we`ll use a Lightsail launch script to install our application.
 
-1) From the Lightsail console click 'Create Instance'
+1) From the Lightsail console click `Create Instance`
 
-2) Under 'Blueprint' choose 'MEAN'
+2) Under `Blueprint` choose `MEAN`
 
-3) Click '+Add Launch Script'
+3) Click `+Add Launch Script`
 
 4) Paste the script below into the window
 
@@ -32,19 +32,19 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
     * Clones the application GitHub repo and installs all the dependencies using the Node Package Manager (`npm`)
     * Creates a configuration file that sets the application port (`80`) and the connection string for the database running on the loca lhost (`mongodb://tasks:tasks@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=tasks`)
 
-5) Once the instance shows a state of running in the Lightsail console, go ahead and SSH into it either using the built in SSH client or using your own (username: `bitnami`). If you're unfamiliar with SSH please see this tutorial. 
+5) Once the instance shows a state of running in the Lightsail console, go ahead and SSH into it either using the built in SSH client or using your own (username: `bitnami`). If you`re unfamiliar with SSH please see this tutorial. 
 
-    ***Note**: Even though the instance shows a state of running, it may still be executing our startup script, and you won't be able to connect. If this is the case, give it a couple of minutes and try again.*
+    ***Note**: Even though the instance shows a state of running, it may still be executing our startup script, and you won`t be able to connect. If this is the case, give it a couple of minutes and try again.*
     
 ### 1.2 - Configure the Mongo database
 
-In this section we're goin to configure the Mongo database for our application. Specifically we're going to add a username and password  (`tasks` for both) to our Mongo database (also called `tasks`). We'll do all this using the Mongo client from the Lightsail command line. 
+In this section we`re goin to configure the Mongo database for our application. Specifically we`re going to add a username and password  (`tasks` for both) to our Mongo database (also called `tasks`). We`ll do all this using the Mongo client from the Lightsail command line. 
 
 ***Note**: The following steps are performed from the Lightsail instance command line*
 
 1) First log into the mongo client using the following command
 
-    ***Note**: Each Bitnami-based Lightsail instance stores the application password in a file called `bitnami_application_password`. Below we're redirecting that file into the Mongo client command line.*
+    ***Note**: Each Bitnami-based Lightsail instance stores the application password in a file called `bitnami_application_password`. Below we`re redirecting that file into the Mongo client command line.*
 
         mongo admin --username root -p $(cat ./bitnami_application_password)
 
@@ -62,11 +62,11 @@ In this section we're goin to configure the Mongo database for our application. 
             }
         )
 
-4) Type 'exit' to close the mongo shell
+4) Type `exit` to close the mongo shell
 
 ### 1.3 - Start and test our application
 
-Now that we've installed the application and configured the database, we can now run the application. 
+Now that we`ve installed the application and configured the database, we can now run the application. 
 
 1) Change into the application directory
 
@@ -78,7 +78,7 @@ Now that we've installed the application and configured the database, we can now
 
 3) From the Lightsail console get the IP address of your MEAN instance and navigate to that address in your web browser. 
 
-You should see the ToDo application running. Add a task or two to make sure it's working as expected. 
+You should see the ToDo application running. Add a task or two to make sure it`s working as expected. 
 
 ## Demo #2 - Scaling the Todo Application
 
@@ -86,11 +86,11 @@ You should see the ToDo application running. Add a task or two to make sure it's
 
 Begin by creating a Lightsail instance and installing Mongo. 
 
-1) From the Lightsail console click 'Create Instance'
+1) From the Lightsail console click `Create Instance`
  
-2) Under 'Blueprint' select 'OS Only' and choose 'Ubuntu'
+2) Under `Blueprint` select `OS Only` and choose `Ubuntu`
 
-4) Click '+Add Launch Script' and paste in the script below
+4) Click `+Add Launch Script` and paste in the script below
 
         #!/bin/bash
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
@@ -112,18 +112,18 @@ Begin by creating a Lightsail instance and installing Mongo.
     * Backs up the old configuration file and copies in the new one
     * Starts Mongo
 
-5) Scroll down and enter 'Mongo' as the Instance name
+5) Scroll down and enter `Mongo` as the Instance name
 
-6) Click 'Create'
+6) Click `Create`
 
 7) Once the instance is up and running you need to document the private IP of the instance. You can find this by clicking on the the instance name. You will use this IP in the next section.
 
 ###2.2 - Create the web front end instance
-Next we're going to create our web front end instance. We'll use the NodeJS blueprint and add in the application code. Additionally we'll use a process manager, PM2, to ensure that our application starts up when the instance boots. 
+Next we`re going to create our web front end instance. We`ll use the NodeJS blueprint and add in the application code. Additionally we`ll use a process manager, PM2, to ensure that our application starts up when the instance boots. 
 
 Check out the PM2 website to learn more about this tool. 
 
-1) From the Lightsail console click 'Create'
+1) From the Lightsail console click `Create`
 
 2) Under `Blueprint` choose `NodeJS`
 
