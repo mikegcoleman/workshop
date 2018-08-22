@@ -31,7 +31,7 @@ The first step is create a MEAN stack instance in Lightsail. When creating the i
         cd /home/bitnami/todo
         sudo npm install --production
 
-        sudo cat <<EOF >> /home/bitnami/todo/.env
+        sudo cat << EOF >> /home/bitnami/todo/.env
         PORT=80
         DB_URL=mongodb://tasks:tasks@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=tasks
         EOF
@@ -128,7 +128,7 @@ In this section you will create an Ubuntu Linux instance using an `OS Only` blue
 
     ![](./images/2-1-1.jpg) 
 
-2) Under `Blueprint` click `OS Only` and choose `Ubuntu`
+2) Under `Select a blueprint` click `OS Only` and choose `Ubuntu`
 
     ![](./images/2-1-2.jpg) 
 
@@ -176,16 +176,16 @@ In this section you will create an Ubuntu Linux instance using an `OS Only` blue
 
     ***Note:** You will use this IP in the next section*
 
-###2.2 - Create the web front end instance
-Next you are going to create our web front end instance. The front end instance will use the Lightsail NodeJS blueprint along with the application code. Additionally it will use a process manager, PM2, to ensure that our application starts up when the instance boots. 
+### 2.2 - Create the web front end instance
+Next you are going to create our web front end instance. The front end instance will use the Lightsail Node.js blueprint along with the application code. Additionally it will use a process manager, PM2, to ensure that our application starts up when the instance boots. 
 
 Check out the [PM2 website](http://pm2.keymetrics.io/) to learn more about this tool. 
 
-1) From the Lightsail console click `Create`
+1) From the Lightsail home page click `Create Instance`
 
-2) Under `Blueprint` choose `NodeJS`
+2) Under `Select a blueprint` choose `Node.js`
 
-3) Click `+Add Launch Script` and paste in the script below
+3) Click `+Add launch script` and paste in the script below
 
         #!/bin/bash
 
@@ -200,34 +200,43 @@ Check out the [PM2 website](http://pm2.keymetrics.io/) to learn more about this 
 
         sudo npm install --production
         sudo npm install pm2@latest -g
+      
 
-    This script:
+    This script does the following:
 
     * Disables Apache to free up port 80 for the web front end
     * Clones in the application code from the GitHub repo
     * Uses `npm` to install the application dependencies and PM2
+    
 
 4) Name the instance `node-fe-1`
 
 5) Click `Create`
 
-Wait for the instance to reach a running state, and then SSH into the instance
+Wait for the instance to reach a running state, and then SSH into the instance (username: `bitnami`)
 
 ***Note:** The following commands need to be run from the command line of the NodeJS isntance
 
 6) Set an environment variable to hold the MongoDB private IP address by executing the command below and substituting the IP address your recorded above.
 
-        IP = <MongoDB instance private IP>
+        IP=<MongoDB instance private IP>
 
     For example:
 
-        IP = 172.12.14.1
+        IP=172.12.14.1
+
+7) Ensure the IP is correctly set by typing the command below. The output should be the private IP of the MongoDB instance
+
+    echo $IP
+
 7) Create a config file to hold our environment variables by pasting the following lines at the command prompt in the NodeJS instance. 
 
-        sudo cat <<EOF >> ~/todo/.env
-        PORT=80
-        DB_URL=mongodb://$(echo IP):27017/
-        EOF
+    ```
+    sudo sh -c "cat > ~/todo/.env"  << EOF
+    PORT=80
+    DB_URL=mongodb://$IP:27017/
+    EOF
+    ```
 
 These variables specify the port the application will run on, and the connection string for the MongoDB host
 
@@ -240,4 +249,71 @@ These variables specify the port the application will run on, and the connection
         sudo pm2 start /home/bitnami/todo/bin/www
 
 10) Save out the current process list for PM2. This will allow PM2 to start the application when the instance boots up subsequently
+
         sudo pm2 save
+
+
+## 2.3 Creating additional web front-end instances
+
+1) Return to the Lightsail console home page
+
+2) Click the 3 dot menu for the `node-fe-1` instance and choose `manage`
+
+3) From the horizontal menu choose `Snapshots`
+
+4) Click Create Snapshot
+
+    The status will change to `creating`, you will need to wait for the process to complete to move forward. This can take up to 5 minutes. 
+
+5) Click the 3 dot menu to the right of the newly created snapshot and select `Create new instance`
+
+6) Scroll down and name the instance `node-fe-2`
+
+7) Click `Create`
+
+8) Click the 3 dot menu for the `node-fe-1` instance and choose `manage`
+
+9) From the horizontal menu choose `Snapshots`
+
+10) Click the 3 dot menu to the right of the previously created snapshot and select `Create new instance`
+
+11) Scroll down and name the instance `node-fe-3`
+
+12) Click `Create`
+
+13) Test the public IP of each of the three front end instances in your web browser. Notice that the private IP address is listed under your task list, and that it changes for each of the 3 instances. 
+
+### 2.4 - Load balance the web front-end
+
+1) From the Lightsail home page's horizontal menu choose `Networking`
+
+2) Click `Create Load Balancer`
+
+3) Scroll down and enter `todo-lb` for the load balancer name
+
+4) Click `Create Load Balancer`
+
+5) Under `Target instances` choose `node-fe-1` from the list
+
+6) Click `atttach`
+
+7) Click `Attach another` and repeat steps 5 and 6 for `node-fe-2` and `node-fe-3`
+
+    It will take several minutes for all three instances to register their health checks as `Passed` once this has happened, move to the next step
+
+8) From the top of the screen copy the long string following `DNS name:`. This is the URL for your Lightsail load balancer. Any requests on this URL will be routed to one of your three front end instances. 
+
+9) Paste the string into a web browser, the Todo application should come up. Reload the page and notice how the host name at the bottom of the screen changes - this indicates that traffic is being routed appropriately. 
+
+## Cleanup
+
+1) Navigate back to the Lightsail home page
+
+2) Delete the 5 lightsail instances you created by clicking the 3 dot menu on each instance and choosing `delete`. You will need to confirm each action by clicking `Yes, delete`
+
+3) Click `Networking` from the horizontal menu
+
+4) Click the 3 dot menu on the `todo-lb` load balancer and choose `Delete`. You will need to confirm the action by clicking `Yes, delete`
+
+
+
