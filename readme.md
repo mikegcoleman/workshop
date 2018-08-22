@@ -1,3 +1,7 @@
+![](./images/amazon-lightsail.jpg)
+
+# Deploying and Scalling Applications with Amazon Lightsail
+
 ## Demo #1 - Deploying a Standalone MEAN Application
 To start we`re going to deploy a MEAN stack application into a single Lightsail instance. This means that both the Express front end and the Mongo database will be running on the same host. We`ll build a new application instance, configure the Mongo database, and then test out our application 
 
@@ -6,11 +10,15 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
 
 1) From the Lightsail console click `Create Instance`
 
-    ![](./images/1-1-1.png)
+    ![](./images/1-1-1.jpg)
 
 2) Under `Blueprint` choose `MEAN`
 
+    ![](./images/1-1-2.jpg)
+
 3) Click `+Add Launch Script`
+
+    ![](./images/1-1-3.jpg)
 
 4) Paste the script below into the window
 
@@ -36,7 +44,11 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
 
 5) Name your instance `MEAN`
 
+    ![](./images/1-1-5.jpg)
+
 6) Click `Create`
+
+    ![](./images/1-1-6.jpg)
 
 Once the instance shows a state of running in the Lightsail console, go ahead and SSH into it either using the built in SSH client or using your own (username: `bitnami`). If you`re unfamiliar with SSH please see this tutorial. 
 
