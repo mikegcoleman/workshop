@@ -2,11 +2,11 @@
 
 # Deploying and Scalling Applications with Amazon Lightsail
 
-## Demo #1 - Deploying a Standalone MEAN Application
-To start we`re going to deploy a MEAN stack application into a single Lightsail instance. This means that both the Express front end and the Mongo database will be running on the same host. We`ll build a new application instance, configure the Mongo database, and then test out our application 
+## Lab 1 - Deploying a Standalone MEAN Application
+In this lab you'll deploy a MEAN stack application into a single Lightsail instance. This means that both the Express front end and the Mongo database will be running on the same host. You will build a new application instance, configure the MongoDB database, and then test out the application 
 
 ### 1.1: Build the MEAN application instance
-The first thing we need to do is create a MEAN stack instance in Lightsail. When we create our instance, we`ll use a Lightsail launch script to install our application.
+The first step is create a MEAN stack instance in Lightsail. When creating the instance, you will use a Lightsail launch script to install the application.
 
 1) From the Lightsail console click `Create Instance`
 
@@ -20,7 +20,7 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
 
     ![](./images/1-1-3.jpg)
 
-4) Paste the script below into the window
+4) Paste the script below into the text box
 
         #! /bin/bash
         sudo /opt/bitnami/ctlscript.sh stop apache
@@ -38,11 +38,11 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
 
     This script does the following:
 
-    * Stops Apache using the control scripts present in the Bitnami MEAN image. Stopping Apache frees up Port 80 so our application can use it. 
+    * Stops Apache using the control scripts present in the Bitnami MEAN image. Stopping Apache frees up Port 80 so the application can use it. 
     * Clones the application GitHub repo and installs all the dependencies using the Node Package Manager (`npm`)
     * Creates a configuration file that sets the application port (`80`) and the connection string for the database running on the loca lhost (`mongodb://tasks:tasks@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=tasks`)
 
-5) Name your instance `MEAN`
+5) Name the instance `MEAN`
 
     ![](./images/1-1-5.jpg)
 
@@ -50,21 +50,23 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
 
     ![](./images/1-1-6.jpg)
 
-Once the instance shows a state of running in the Lightsail console, go ahead and SSH into it either using the built in SSH client or using your own (username: `bitnami`). If you`re unfamiliar with SSH please see this tutorial. 
+Once the instance shows a state of running in the Lightsail console, SSH into it either using the built in SSH client or using your own (username: `bitnami`). If you`re unfamiliar with SSH please see this tutorial. 
 
-    ***Note**: Even though the instance shows a state of running, it may still be executing our startup script, and you won`t be able to connect. If this is the case, give it a couple of minutes and try again.*
+![](./images/mean-running.jpg)
+
+***Note**: Even though the instance shows a state of running, it may still be executing the startup script, and you won`t be able to connect. If this is the case, give it a couple of minutes and try again.*
     
 ### 1.2 - Configure the Mongo database
 
-In this section we`re goin to configure the Mongo database for our application. Specifically we`re going to add a username and password  (`tasks` for both) to our Mongo database (also called `tasks`). We`ll do all this using the Mongo client from the Lightsail command line. 
+In this section you are going to configure the Mongo database for use with the application. Specifically you are going to add a username and password  (`tasks` for both) for the application database (also called `tasks`). You'll do all this using the Mongo client from the Lightsail command line. 
 
 ***Note**: The following steps are performed from the Lightsail instance command line*
 
 1) First log into the mongo client using the following command
 
-    ***Note**: Each Bitnami-based Lightsail instance stores the application password in a file called `bitnami_application_password`. Below we`re redirecting that file into the Mongo client command line.*
-
         mongo admin --username root -p $(cat ./bitnami_application_password)
+
+    ***Note**: Each Bitnami-based Lightsail instance stores the application password in a file called `bitnami_application_password`. Below we`re redirecting that file into the Mongo client command line.*
 
 2) Create the tasks database by issuing the following command:
 
@@ -80,11 +82,15 @@ In this section we`re goin to configure the Mongo database for our application. 
             }
         )
 
-4) Type `exit` to close the mongo shell
+4) Close the mongo shell by typing exit
+
+        exit
 
 ### 1.3 - Start and test our application
 
-Now that we`ve installed the application and configured the database, we can now run the application. 
+Now that the application is installed and the database configured, the application is ready to be started. 
+
+***Note**: The following steps are performed from the Lightsail instance command line*
 
 1) Change into the application directory
 
@@ -94,21 +100,43 @@ Now that we`ve installed the application and configured the database, we can now
     
         sudo DEBUG=app:* ./bin/www
 
-3) From the Lightsail console get the IP address of your MEAN instance and navigate to that address in your web browser. 
+    You should see a message such as:
+
+        app:* Listening on port 80 +0ms
+
+3) From the home page of the Lightsail console get the IP address of the MEAN instance and navigate to that address in a web browser.
+
+    ***Note:** If you are not on the Lightsail home page click `Home` in the upper left corner of the Lightsail console*  
+
+    ![](./images/mean-ip.jpg)
 
 You should see the ToDo application running. Add a task or two to make sure it`s working as expected. 
 
-## Demo #2 - Scaling the Todo Application
+***Note:** You can also check the output in your SSH session to verify everything is working.
+
+## Lab 2 - Scaling the Todo application's web front-end
+
+The first iteration of the application's web front end is not inherently scalable becaue the database and front end are located on the same machine. It would be problematic to add additional database instances whenever additional front-end capacity was needed. 
+
+To fix this issue the front end and database each need to be running on their own instance. In this lab you will create an instance for the database and the web front end. Then you will take a snapshot of the web front end, and deploy two additional web front end instances from that snapshot. Finally, you'll add a loadbalancer in front of the three front end instances. 
 
 ### 2.1 - Create our Mongo instance
 
-Begin by creating a Lightsail instance and installing Mongo. 
+In this section you will create an Ubuntu Linux instance using an `OS Only` blueprint. As part of the instance creation process you'll supply a launch script that will install MongoDB. 
 
-1) From the Lightsail console click `Create Instance`
- 
-2) Under `Blueprint` select `OS Only` and choose `Ubuntu`
+1) From the Lightsail console home page click `Create Instance`
 
-4) Click `+Add Launch Script` and paste in the script below
+    ![](./images/2-1-1.jpg) 
+
+2) Under `Blueprint` click `OS Only` and choose `Ubuntu`
+
+    ![](./images/2-1-2.jpg) 
+
+3) Click `+Add Launch Script`
+
+    ![](./images/2-1-3.jpg) 
+
+4) Paste the script below into the text box
 
         #!/bin/bash
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
@@ -123,7 +151,7 @@ Begin by creating a Lightsail instance and installing Mongo.
 
         sudo service mongod start
 
-    This script:
+    This script does the following:
 
     * Uses `apt-get` to install Mongo
     * Modifies the Mongo configuration file to make sure Mongo is listening on the instances private IP address
@@ -132,14 +160,26 @@ Begin by creating a Lightsail instance and installing Mongo.
 
 5) Scroll down and enter `Mongo` as the Instance name
 
+    ![](./images/2-1-5.jpg)
+
 6) Click `Create`
 
-7) Once the instance is up and running you need to document the private IP of the instance. You can find this by clicking on the the instance name. You will use this IP in the next section.
+    ![](./images/2-1-6.jpg)
+
+7) Once the instance is up and running from the Lightsail home page click on the instance name. This will bring up the instance details page
+
+    ![](./images/2-1-7.jpg)
+
+8) Document the private IP of the instance. 
+
+    ![](./images/2-1-8.jpg)
+
+    ***Note:** You will use this IP in the next section*
 
 ###2.2 - Create the web front end instance
-Next we`re going to create our web front end instance. We`ll use the NodeJS blueprint and add in the application code. Additionally we`ll use a process manager, PM2, to ensure that our application starts up when the instance boots. 
+Next you are going to create our web front end instance. The front end instance will use the Lightsail NodeJS blueprint along with the application code. Additionally it will use a process manager, PM2, to ensure that our application starts up when the instance boots. 
 
-Check out the PM2 website to learn more about this tool. 
+Check out the ![PM2 website](http://pm2.keymetrics.io/) to learn more about this tool. 
 
 1) From the Lightsail console click `Create`
 
