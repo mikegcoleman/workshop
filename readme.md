@@ -6,6 +6,8 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
 
 1) From the Lightsail console click `Create Instance`
 
+    ![](./images/1-1-1.png)
+
 2) Under `Blueprint` choose `MEAN`
 
 3) Click `+Add Launch Script`
@@ -32,7 +34,11 @@ The first thing we need to do is create a MEAN stack instance in Lightsail. When
     * Clones the application GitHub repo and installs all the dependencies using the Node Package Manager (`npm`)
     * Creates a configuration file that sets the application port (`80`) and the connection string for the database running on the loca lhost (`mongodb://tasks:tasks@localhost:27017/?authMechanism=SCRAM-SHA-1&authSource=tasks`)
 
-5) Once the instance shows a state of running in the Lightsail console, go ahead and SSH into it either using the built in SSH client or using your own (username: `bitnami`). If you`re unfamiliar with SSH please see this tutorial. 
+5) Name your instance `MEAN`
+
+6) Click `Create`
+
+Once the instance shows a state of running in the Lightsail console, go ahead and SSH into it either using the built in SSH client or using your own (username: `bitnami`). If you`re unfamiliar with SSH please see this tutorial. 
 
     ***Note**: Even though the instance shows a state of running, it may still be executing our startup script, and you won`t be able to connect. If this is the case, give it a couple of minutes and try again.*
     
