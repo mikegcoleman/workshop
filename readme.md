@@ -179,7 +179,7 @@ In this section you will create an Ubuntu Linux instance using an `OS Only` blue
 ###2.2 - Create the web front end instance
 Next you are going to create our web front end instance. The front end instance will use the Lightsail NodeJS blueprint along with the application code. Additionally it will use a process manager, PM2, to ensure that our application starts up when the instance boots. 
 
-Check out the ![PM2 website](http://pm2.keymetrics.io/) to learn more about this tool. 
+Check out the [PM2 website](http://pm2.keymetrics.io/) to learn more about this tool. 
 
 1) From the Lightsail console click `Create`
 
