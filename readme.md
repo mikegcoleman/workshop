@@ -1,6 +1,6 @@
 ![](./images/amazon-lightsail.jpg)
 
-# Deploying and Scalling Applications with Amazon Lightsail
+# Deploying and Scaling Applications with Amazon Lightsail
 
 ## Lab 1 - Deploying a Standalone MEAN Application
 In this lab you'll deploy a MEAN stack application into a single Lightsail instance. This means that both the Express front end and the Mongo database will be running on the same host. You will build a new application instance, configure the MongoDB database, and then test out the application 
