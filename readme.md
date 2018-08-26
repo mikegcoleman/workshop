@@ -341,6 +341,8 @@ These variables specify the port the application will run on, and the connection
 
 5) Click the 3 dot menu to the right of the newly created snapshot and select `Create new instance`
 
+    ![](./images/2-3-5.jpg)
+
 6) Scroll down and name the instance `node-fe-2`
 
 7) Click `Create`
@@ -355,35 +357,58 @@ These variables specify the port the application will run on, and the connection
 
 10) Click the 3 dot menu to the right of the previously created snapshot and select `Create new instance`
 
+    ![](./images/2-3-5.jpg)
+
 11) Scroll down and name the instance `node-fe-3`
 
 12) Click `Create`
 
-13) Test the public IP of each of the two newly created front end instances in your web browser. Notice that the private IP address is listed under your task list, and that it changes for each of the 3 instances. 
+13) Test the public IP of each of the two newly created front end instances in your web browser. Notice that the hostname for that particular web front end instance is listed under your task list, and that it changes based on which instance you are visiting in your web browser
+
+    ![](./images/2-3-13.jpg)
 
 ### 2.4 - Load balance the web front-end
 
-1) From the Lightsail home page's horizontal menu choose `Networking`
+1) Return the the Lightsail home page and choose `Networking` from the horizontal menu. 
+
+    ![](./images/2-4-1.jpg)
 
 2) Click `Create Load Balancer`
 
+    ![](./images/2-4-2.jpg)
+
 3) Scroll down and enter `todo-lb` for the load balancer name
+
+    ![](./images/2-4-3.jpg)
 
 4) Click `Create Load Balancer`
 
-5) Under `Target instances` choose `node-fe-1` from the list
+    ![](./images/2-4-4.jpg)
+
+5) Under `Target instances` choose `node-fe-1` from the dropdown list
+
+    ![](./images/2-4-5.jpg)
 
 6) Click `atttach`
 
+    ![](./images/2-4-6.jpg)
+
 7) Click `Attach another` and repeat steps 5 and 6 for `node-fe-2` and `node-fe-3`
 
-    It will take several minutes for all three instances to register their health checks as `Passed` once this has happened, move to the next step
+    ![](./images/2-4-7.jpg)
+
+    ***Note:** It will take several minutes for all three instances to register their health checks as `Passed` once this has happened, move to the next step*
+    
+    ![](./images/2-4-7a.jpg)
 
 8) From the top of the screen copy the long string following `DNS name:`. This is the URL for your Lightsail load balancer. Any requests on this URL will be routed to one of your three front end instances. 
+
+    ![](./images/2-4-8.jpg)
 
 9) Paste the string into a web browser, the Todo application should come up. Reload the page and notice how the host name at the bottom of the screen changes - this indicates that traffic is being routed appropriately. 
 
 ## Cleanup
+Be sure to either stop or delete all the resources from this lab so as not to incur additional charges. To cleanup the resources follow the steps below. 
 
 1) Navigate back to the Lightsail home page
 
