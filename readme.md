@@ -82,13 +82,17 @@ In this section you are going to configure the Mongo database for use with the a
             }
         )
 
+    You should get a message that you successfully added the user:
+
+        Successfully added user: { "user" : "tasks", "roles" : [ "dbOwner" ] }
+
 4) Close the mongo shell by typing exit
 
         exit
 
 ### 1.3 - Start and test our application
 
-Now that the application is installed and the database configured, the application is ready to be started. 
+Now that the application is installed and the database configured it is ready to be started. 
 
 ***Note**: The following steps are performed from the Lightsail instance command line*
 
@@ -118,7 +122,7 @@ You should see the ToDo application running. Add a task or two to make sure it`s
 
 The first iteration of the application's web front end is not inherently scalable becaue the database and front end are located on the same machine. It would be problematic to add additional database instances whenever additional front-end capacity was needed. 
 
-To fix this issue the front end and database each need to be running on their own instance. In this lab you will create an instance for the database and the web front end. Then you will take a snapshot of the web front end, and deploy two additional web front end instances from that snapshot. Finally, you'll add a loadbalancer in front of the three front end instances. 
+To fix this issue the front end and database each need to be running on their own instance. In this lab you will create an instance for the database and one for the web front end. Then you will take a snapshot of the web front end, and deploy two additional web front end instances from that snapshot. Finally, you'll add a loadbalancer in front of the three front end instances. 
 
 ### 2.1 - Create our Mongo instance
 
@@ -166,7 +170,27 @@ In this section you will create an Ubuntu Linux instance using an `OS Only` blue
 
     ![](./images/2-1-6.jpg)
 
-7) Once the instance is up and running from the Lightsail home page click on the instance name. This will bring up the instance details page
+7) Once the instance is up and running SSH into the box (username: `ubuntu`)
+
+8) Use the Mongo client to ensure that the machine is running correction
+
+        mongo --host $(hostname -i)
+
+9) From the Mongo client to show the built in databases
+
+        show dbs
+
+    The output should be:
+
+        admin   0.000GB
+        config  0.000GB
+        local   0.000GB
+
+10) Type `exit` to close the mongo client
+
+11) In your web browser return to the Lightsail console
+
+12) From the Lightsail home page click on the instance name. This will bring up the instance details page
 
     ![](./images/2-1-7.jpg)
 
@@ -183,9 +207,17 @@ Check out the [PM2 website](http://pm2.keymetrics.io/) to learn more about this 
 
 1) From the Lightsail home page click `Create Instance`
 
+    ![](./images/2-2-1.jpg)
+
 2) Under `Select a blueprint` choose `Node.js`
 
-3) Click `+Add launch script` and paste in the script below
+    ![](./images/2-2-2.jpg)
+
+3) Click `+Add launch script`
+
+     ![](./images/2-2-3.jpg)
+
+4) Paste in the script below
 
         #!/bin/bash
 
@@ -209,13 +241,17 @@ Check out the [PM2 website](http://pm2.keymetrics.io/) to learn more about this 
     * Uses `npm` to install the application dependencies and PM2
     
 
-4) Name the instance `node-fe-1`
+5) Name the instance `node-fe-1`
 
-5) Click `Create`
+    ![](./images/2-2-5.jpg)
 
-Wait for the instance to reach a running state, and then SSH into the instance (username: `bitnami`)
+6) Click `Create`
 
-***Note:** The following commands need to be run from the command line of the NodeJS isntance
+    ![](./images/2-2-6.jpg)
+
+7) Wait for the instance to reach a running state, and then SSH into the instance (username: `bitnami`)
+
+    ***Note:** The following commands need to be run from the command line of the NodeJS isntance*
 
 6) Set an environment variable to hold the MongoDB private IP address by executing the command below and substituting the IP address your recorded above.
 
@@ -227,19 +263,32 @@ Wait for the instance to reach a running state, and then SSH into the instance (
 
 7) Ensure the IP is correctly set by typing the command below. The output should be the private IP of the MongoDB instance
 
-    echo $IP
+        echo $IP
+
+8) Change into the application directory
+
+        cd ~/todo
 
 7) Create a config file to hold our environment variables by pasting the following lines at the command prompt in the NodeJS instance. 
 
-    ```
-    sudo sh -c "cat > ~/todo/.env"  << EOF
-    PORT=80
-    DB_URL=mongodb://$IP:27017/
-    EOF
-    ```
+```
+sudo sh -c "cat > ./.env"  << EOF
+PORT=80
+DB_URL=mongodb://$IP:27017/
+EOF
+```
 
 These variables specify the port the application will run on, and the connection string for the MongoDB host
 
+8) Ensure the file was created succesfully by using `cat` to list out the contents
+
+        cat ./.env
+
+    The output should be similar to below (ensure the IP address matches the **PRIVATE IP** of your Mongo instance)
+
+        PORT=80
+        DB_URL=mongodb://IP=172.12.14.1:27017/
+        
 8) Configure PM2 for use with Ubuntu by issuing the following command
         
         sudo pm2 startup ubuntu
@@ -252,18 +301,43 @@ These variables specify the port the application will run on, and the connection
 
         sudo pm2 save
 
+11) Issue the following command to have PM2 stream the application logs to the console
+
+        sudo pm2 logs www
+
+11) Ensure everything is working by navigating the the **PUBLIC IP** of your `MEAN` Instance
+
+    You should see the todo application in your web browser and if you check the SSH session there should be some output there as well similar to the below:
+
+        0|www  | GET / 200 1005 - 42.341 ms
+        0|www  | GET /stylesheets/style.css 200 89 - 2.430 ms
+        0|www  | GET /css/bootstrap.min.css 200 140936 - 3.865 ms
+        0|www  | GET /css/fontawesome-all.css 200 51609 - 0.807 ms
+        0|www  | GET /js/bootstrap.min.js 200 51039 - 4.965 ms
+        0|www  | GET /js/jquery.min.js 200 86927 - 2.875 ms
+
+    ***Note:** You can find the public IP on the card with the instance name for the `MEAN` instance on the Lightsail home page.* 
+
+    ![](./images/2-2-13.jpg)
+
 
 ## 2.3 Creating additional web front-end instances
 
 1) Return to the Lightsail console home page
 
-2) Click the 3 dot menu for the `node-fe-1` instance and choose `manage`
+2) Click the 3 dot menu for the `node-fe-1` instance and choose `Manage`
+
+    ![](./images/2-3-2.jpg)
 
 3) From the horizontal menu choose `Snapshots`
 
+    ![](./images/2-3-3.jpg)
+
 4) Click Create Snapshot
 
-    The status will change to `creating`, you will need to wait for the process to complete to move forward. This can take up to 5 minutes. 
+    ![](./images/2-3-4.jpg)
+
+    Under `Recent snapshots` the status will change to `creating`, you will need to wait for the process to complete to move forward. This can take up to 5 minutes. 
 
 5) Click the 3 dot menu to the right of the newly created snapshot and select `Create new instance`
 
@@ -273,7 +347,11 @@ These variables specify the port the application will run on, and the connection
 
 8) Click the 3 dot menu for the `node-fe-1` instance and choose `manage`
 
+    ![](./images/2-3-2.jpg)
+
 9) From the horizontal menu choose `Snapshots`
+
+    ![](./images/2-3-3.jpg)
 
 10) Click the 3 dot menu to the right of the previously created snapshot and select `Create new instance`
 
@@ -281,7 +359,7 @@ These variables specify the port the application will run on, and the connection
 
 12) Click `Create`
 
-13) Test the public IP of each of the three front end instances in your web browser. Notice that the private IP address is listed under your task list, and that it changes for each of the 3 instances. 
+13) Test the public IP of each of the two newly created front end instances in your web browser. Notice that the private IP address is listed under your task list, and that it changes for each of the 3 instances. 
 
 ### 2.4 - Load balance the web front-end
 
